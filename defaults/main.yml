@@ -1,0 +1,16 @@
+---
+mssql_base_dir: /opt
+mssql_image: mcr.microsoft.com/mssql/server
+mssql_listen_port: 1433
+mssql_name: mssql_{{ ansible_hostname }}
+mssql_password: Change2Me!
+# Allowed values: Developer, Express, Standard, Enterprise, EnterpriseCore
+mssql_pid: Express
+mssql_tls: false
+mssql_tls_cert_path: "{{ mssql_base_dir }}/{{ mssql_name }}/mssql.pem"
+mssql_tls_force: false
+mssql_tls_key_path: "{{ mssql_base_dir }}/{{ mssql_name }}/mssql.key"
+mssql_tls_version: 1.2
+mssql_version: 2022-latest
+mssql_user: mssql-container
+mssql_uid: 10001

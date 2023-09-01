@@ -1,0 +1,78 @@
+---
+- name: Ensure container user account exists
+  ansible.builtin.user:
+    create_home: false
+    group: docker
+    name: "{{ mssql_user }}"
+    uid: "{{ mssql_uid }}"
+
+- name: Ensure directories for Microsoft SQL Server exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ mssql_uid }}"
+    group: docker
+    mode: 0750
+  with_items:
+    - "{{ mssql_base_dir }}/{{ mssql_name }}"
+    - "{{ mssql_base_dir }}/{{ mssql_name }}/backup"
+    - "{{ mssql_base_dir }}/{{ mssql_name }}/data"
+    - "{{ mssql_base_dir }}/{{ mssql_name }}/log"
+    - "{{ mssql_base_dir }}/{{ mssql_name }}/secrets"
+
+- name: TLS settings
+  when: mssql_tls
+  block:
+    - name: Ensure configuration file exists
+      ansible.builtin.copy:
+        content: "{{ mssql_conf }}"
+        dest: "{{ mssql_base_dir }}/{{ mssql_name }}/mssql.conf"
+        owner: "{{ mssql_uid }}"
+        group: docker
+        mode: 0640
+
+    - name: Ensure certificate file exists
+      ansible.builtin.file:
+        path: "{{ mssql_tls_cert_path }}"
+        state: touch
+        access_time: preserve
+        owner: root
+        group: root
+        mode: 0640
+
+    - name: Ensure private key file exists
+      ansible.builtin.file:
+        path: "{{ mssql_tls_key_path }}"
+        state: touch
+        access_time: preserve
+        owner: root
+        group: root
+        mode: 0640
+
+    - name: Ensure additional Docker volumes for TLS are mapped
+      ansible.builtin.set_fact:
+        mssql_volumes: "{{ mssql_volumes + mssql_volumes_tls }}"
+
+- name: Pull Microsoft SQL Server docker image
+  community.docker.docker_image:
+    name: "{{ mssql_image }}"
+    source: pull
+    tag: "{{ mssql_version }}"
+  notify: Remove MSSQL
+
+- name: Ensure all handlers run before continuing
+  ansible.builtin.meta: flush_handlers
+
+- name: Ensure Microsoft SQL Server container is created
+  community.docker.docker_container:
+    container_default_behavior: no_defaults
+    detach: true
+    env: "{{ mssql_env }}"
+    image: "{{ mssql_image }}:{{ mssql_version }}"
+    interactive: false
+    name: "{{ mssql_name }}"
+    ports: "{{ mssql_ports }}"
+    restart_policy: always
+    state: started
+    volumes: "{{ mssql_volumes }}"
+  notify: Restart MSSQL

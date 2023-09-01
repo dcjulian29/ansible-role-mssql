@@ -1,0 +1,14 @@
+---
+- name: Restart MSSQL
+  ansible.builtin.command: "docker restart {{ item }}"
+  with_items:
+    - "{{ mssql_name }}"
+
+- name: Remove MSSQL
+  ansible.builtin.command: "docker stop {{ item }} && docker rm {{ item }}"
+  register: results
+  with_items:
+    - "{{ mssql_name }}"
+  failed_when: >-
+    results is failed and
+    "No such container" not in results.stderr | default(false)

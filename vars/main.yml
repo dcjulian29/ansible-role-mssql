@@ -1,0 +1,23 @@
+---
+mssql_env:
+  TZ: "{{ ansible_date_time.tz }}"
+  ACCEPT_EULA: Y
+  SA_PASSWORD: "{{ mssql_password }}"
+  MSSQL_PID: "{{ mssql_pid }}"
+mssql_conf: |
+  [network]
+  tlscert = /var/opt/mssql/secrets/mssql.pem
+  tlskey = /var/opt/mssql/secrets/mssql.key
+  tlsprotocols = {{ mssql_tls_version }}
+  forceencryption = {{ '1' if mssql_tls_force else '0' }}
+mssql_ports:
+  - "{{ mssql_listen_port }}:1433/tcp"
+mssql_volumes:
+  - "{{ mssql_base_dir }}/{{ mssql_name }}/backup:/var/opt/mssql/backup"
+  - "{{ mssql_base_dir }}/{{ mssql_name }}/data:/var/opt/mssql/data"
+  - "{{ mssql_base_dir }}/{{ mssql_name }}/log:/var/opt/mssql/log"
+  - "{{ mssql_base_dir }}/{{ mssql_name }}/secrets:/var/opt/mssql/secrets"
+mssql_volumes_tls:
+  - "{{ mssql_base_dir }}/{{ mssql_name }}/mssql.conf:/var/opt/mssql/mssql.conf"
+  - "{{ mssql_tls_cert_path }}:/var/opt/mssql/secrets/mssql.pem"
+  - "{{ mssql_tls_key_path }}:/var/opt/mssql/secrets/mssql.key"
