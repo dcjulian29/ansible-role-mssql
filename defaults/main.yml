@@ -2,7 +2,7 @@
 mssql_base_dir: /opt
 mssql_docker_image: mcr.microsoft.com/mssql/server
 mssql_docker_version: 2022-latest
-mssql_labels: {}
+mssql_labels: { }
 mssql_listen_port: 1433
 mssql_name: mssql_{{ ansible_hostname }}
 mssql_password: Change2Me!
