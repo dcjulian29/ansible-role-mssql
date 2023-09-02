@@ -55,9 +55,9 @@
 
 - name: Pull Microsoft SQL Server docker image
   community.docker.docker_image:
-    name: "{{ mssql_image }}"
+    name: "{{ mssql_docker_image }}"
     source: pull
-    tag: "{{ mssql_version }}"
+    tag: "{{ mssql_docker_version }}"
   notify: Remove MSSQL
 
 - name: Ensure all handlers run before continuing
@@ -68,8 +68,9 @@
     container_default_behavior: no_defaults
     detach: true
     env: "{{ mssql_env }}"
-    image: "{{ mssql_image }}:{{ mssql_version }}"
+    image: "{{ mssql_docker_image }}:{{ mssql_docker_version }}"
     interactive: false
+    labels: "{{ mssql_labels | default(omit) }}"
     name: "{{ mssql_name }}"
     ports: "{{ mssql_ports }}"
     restart_policy: always
