@@ -12,7 +12,7 @@
     state: directory
     owner: "{{ mssql_uid }}"
     group: docker
-    mode: 0750
+    mode: "0750"
   with_items:
     - "{{ mssql_base_dir }}/{{ mssql_name }}"
     - "{{ mssql_base_dir }}/{{ mssql_name }}/backup"
@@ -29,7 +29,7 @@
         dest: "{{ mssql_base_dir }}/{{ mssql_name }}/mssql.conf"
         owner: "{{ mssql_uid }}"
         group: docker
-        mode: 0640
+        mode: "0640"
 
     - name: Ensure certificate file exists
       ansible.builtin.file:
@@ -38,7 +38,7 @@
         access_time: preserve
         owner: root
         group: root
-        mode: 0640
+        mode: "0640"
 
     - name: Ensure private key file exists
       ansible.builtin.file:
@@ -47,7 +47,7 @@
         access_time: preserve
         owner: root
         group: root
-        mode: 0640
+        mode: "0640"
 
     - name: Ensure additional Docker volumes for TLS are mapped
       ansible.builtin.set_fact:
